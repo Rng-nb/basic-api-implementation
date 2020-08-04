@@ -37,4 +37,15 @@ public class RsController {
   public void insertRsEvent(@RequestBody RsEvent rsEvent) {
     rsEventList.add(rsEvent);
   }
+
+  @PatchMapping("/rs/update/{index}")
+  public void updateRsEventByIndex(@PathVariable int index, @RequestBody RsEvent rsEvent) {
+    if(rsEvent.getEventName() != null && rsEvent.getkeyWords() != null) {
+      rsEventList.set(index - 1, rsEvent);
+    } else if(rsEvent.getEventName() == null) {
+      rsEventList.get(index -1).setkeyWords(rsEvent.getkeyWords());
+    } else {
+      rsEventList.get(index - 1).setEventName(rsEvent.getEventName());
+    }
+  }
 }
