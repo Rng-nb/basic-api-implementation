@@ -4,11 +4,11 @@ import java.security.PrivateKey;
 
 public class RsEvent {
     private String eventName;
-    private String ketyWords;
+    private String keyWords;
 
-    public RsEvent(String eventName, String ketyWords) {
+    public RsEvent(String eventName, String keyWords) {
         this.eventName = eventName;
-        this.ketyWords = ketyWords;
+        this.keyWords = keyWords;
     }
 
     public RsEvent() {
@@ -22,11 +22,11 @@ public class RsEvent {
         this.eventName = eventName;
     }
 
-    public String getKetyWords() {
-        return ketyWords;
+    public String getkeyWords() {
+        return keyWords;
     }
 
-    public void setKetyWords(String ketyWords) {
-        this.ketyWords = ketyWords;
+    public void setkeyWords(String keyWords) {
+        this.keyWords = keyWords;
     }
 }
