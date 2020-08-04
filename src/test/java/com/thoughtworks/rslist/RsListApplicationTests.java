@@ -119,9 +119,9 @@ class RsListApplicationTests {
                 .andExpect(jsonPath("$.eventName", is("更新eventName")))
                 .andExpect(jsonPath("$.keyWords", is("更新keyWords")))
                 .andExpect(status().isOk());
+
         rsEvent = new RsEvent(null, "只更新keyWords");
         jsonString = objectMapper.writeValueAsString(rsEvent);
-
         mockMvc.perform(patch("/rs/update/2").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/2"))
@@ -136,6 +136,21 @@ class RsListApplicationTests {
         mockMvc.perform(get("/rs/3"))
                 .andExpect(jsonPath("$.eventName", is("只更新eventName")))
                 .andExpect(jsonPath("$.keyWords", is("无标签")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void deleteRsEventByIndex() throws Exception {
+        mockMvc.perform(delete("/rs/delete/1"))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/rs/list"))
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].eventName", is("第二条事件")))
+                .andExpect(jsonPath("$[0].keyWords", is("只更新keyWords")))
+                .andExpect(jsonPath("$[1].eventName", is("只更新eventName")))
+                .andExpect(jsonPath("$[1].keyWords", is("无标签")))
+                .andExpect(jsonPath("$[2].eventName", is("猪肉涨价了")))
+                .andExpect(jsonPath("$[2].keyWords", is("经济")))
                 .andExpect(status().isOk());
     }
 }

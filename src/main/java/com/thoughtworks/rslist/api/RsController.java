@@ -48,4 +48,9 @@ public class RsController {
       rsEventList.get(index - 1).setEventName(rsEvent.getEventName());
     }
   }
+
+  @DeleteMapping("/rs/delete/{index}")
+  public void deleteRsEventByIndex(@PathVariable int index) {
+    rsEventList.remove(index - 1);
+  }
 }
