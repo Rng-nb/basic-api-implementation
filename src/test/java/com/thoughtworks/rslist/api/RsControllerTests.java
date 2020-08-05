@@ -272,4 +272,26 @@ public class RsControllerTests {
                 .andExpect(jsonPath("$[5]", not(hasKey("voteNum"))))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @Order(12)
+    public void returnErrorWithInvalidIndex() throws Exception {
+        mockMvc.perform(get("/rs/0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid index")));
+    }
+
+    @Test
+    @Order(13)
+    public void returnErrorWithInvalidUserInfo() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
+        User userInsert = new User("xiaoA", 123, "male", "xA@thoughtworks.com", "11234567890");
+        RsEvent rsEvent = new RsEvent("xiaoARs", "User", userInsert);
+        String jsonString = objectMapper.writeValueAsString(rsEvent);
+
+        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid param")));
+    }
 }
