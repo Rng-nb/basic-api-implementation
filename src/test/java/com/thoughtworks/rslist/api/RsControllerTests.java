@@ -239,4 +239,18 @@ public class RsControllerTests {
                 .andExpect(jsonPath("$[4].keyWords", is("Internet")))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @Order(10)
+    public void shouldReturnCreatedWithIndex() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
+        User userInsert = new User("xiaoA", 23, "male", "xA@thoughtworks.com", "11234567890");
+        RsEvent rsEvent = new RsEvent("xiaoARs", "User", userInsert);
+        String jsonString = objectMapper.writeValueAsString(rsEvent);
+
+        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$",is(6)));
+    }
 }

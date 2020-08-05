@@ -7,17 +7,18 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
 public class RsController {
 
-  private List<User> userList = new ArrayList<User>();
+  private List<User> userList = new LinkedList<User>();
   private List<RsEvent> rsEventList = initRsEvent();
 
   private List<RsEvent> initRsEvent() {
 
-    List<RsEvent> rsEvent = new ArrayList<RsEvent>();
+    List<RsEvent> rsEvent = new LinkedList<RsEvent>();
     User userInit = new User("xiaowang", 19,"male", "xw@thoughtwork.com", "11111111111");
 
     userList.add(userInit);
@@ -65,7 +66,7 @@ public class RsController {
     }
     if(!isContains)
       userList.add(insertUser);
-    return ResponseEntity.created(null).build();
+    return ResponseEntity.created(null).body(rsEventList.size());
   }
 
   @PatchMapping("/rs/update/{index}")
