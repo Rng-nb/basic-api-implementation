@@ -1,14 +1,21 @@
 package com.thoughtworks.rslist.domain;
 
-import java.security.PrivateKey;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 public class RsEvent {
+    @NotNull
     private String eventName;
+    @NotNull
     private String keyWords;
+    @Valid
+    @NotNull
+    private User user;
 
-    public RsEvent(String eventName, String keyWords) {
+    public RsEvent(String eventName, String keyWords, User user) {
         this.eventName = eventName;
         this.keyWords = keyWords;
+        this.user = user;
     }
 
     public RsEvent() {
@@ -22,11 +29,19 @@ public class RsEvent {
         this.eventName = eventName;
     }
 
-    public String getkeyWords() {
+    public String getKeyWords() {
         return keyWords;
     }
 
-    public void setkeyWords(String keyWords) {
+    public void setKeyWords(String keyWords) {
         this.keyWords = keyWords;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

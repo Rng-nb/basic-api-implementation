@@ -7,21 +7,21 @@ public class User {
     @Size(max = 8)
     private String name;
     @NotNull
-    private String gender;
-    @NotNull
     @Min(18)
     @Max(100)
     private int age;
+    @NotNull
+    private String gender;
     @Email
     private String email;
     @Pattern(regexp = "1\\d{10}")
     private String phone;
     private int voteNum = 10;
 
-    public User(String name, String gender, int age, String email, String phone) {
+    public User(String name, int age, String gender, String email, String phone) {
         this.name = name;
-        this.gender = gender;
         this.age = age;
+        this.gender = gender;
         this.email = email;
         this.phone = phone;
     }

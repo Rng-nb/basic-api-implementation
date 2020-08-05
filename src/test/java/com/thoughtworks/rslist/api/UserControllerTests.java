@@ -21,7 +21,7 @@ public class UserControllerTests {
 
     @Test
     void should_add_userList_when_post_give_userPath() throws Exception {
-        User user = new User("wyf", "male", 20, "a@b.com", "11234567890");
+        User user = new User("wyf",  20,"male", "a@b.com", "11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -30,7 +30,7 @@ public class UserControllerTests {
 
     @Test
     void name_should_less_8() throws Exception {
-        User user = new User("wyffffffff", "male", 20, "a@b.com", "11234567890");
+        User user = new User("wyffffffff", 20,"male",  "a@b.com", "11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -39,7 +39,7 @@ public class UserControllerTests {
 
     @Test
     void gender_should_not_null() throws Exception {
-        User user = new User("wyf", null, 20, "a@b.com", "11234567890");
+        User user = new User("wyf",20, null,  "a@b.com", "11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -48,7 +48,7 @@ public class UserControllerTests {
 
     @Test
     void age_should_between_18_and_100() throws Exception {
-        User user = new User("wyf", "male", 17, "a@b.com", "11234567890");
+        User user = new User("wyf",  17,"male", "a@b.com", "11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -57,7 +57,7 @@ public class UserControllerTests {
 
     @Test
     void mail_should_suit_format() throws Exception {
-        User user = new User("wyf", "male", 20, "a.b.com", "11234567890");
+        User user = new User("wyf", 20, "male", "a.b.com", "11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -66,7 +66,7 @@ public class UserControllerTests {
 
     @Test
     void phone_should_suit_format() throws Exception {
-        User user = new User("wyf", "male", 20, "a@b.com", "112345678910");
+        User user = new User("wyf",  20,"male", "a@b.com", "112345678910");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
