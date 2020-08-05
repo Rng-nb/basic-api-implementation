@@ -45,12 +45,16 @@ public class RsController {
 
   @GetMapping("/rs/list")
   public ResponseEntity getRsEventListStartEnd(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end) {
-    if(start == null || start < 0 || end == null || end > rsEventList.size()) {
-      throw new RsEventInvalidException("invalid request param");
-
-    } else if(start != null && end != null) {
+     if(start != null && end != null) {
+       if(start < 0 || end > rsEventList.size()) {
+         throw new RsEventInvalidException("invalid request param");
+       }
       return ResponseEntity.ok(rsEventList.subList(start - 1, end));
-    }
+    } else if(start != null && start < 0){
+       throw new RsEventInvalidException("invalid request param");
+     } else if(end != null &&  end > rsEventList.size()) {
+       throw new RsEventInvalidException("invalid request param");
+     }
     return ResponseEntity.ok(rsEventList);
   }
 
