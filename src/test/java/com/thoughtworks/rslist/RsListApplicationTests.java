@@ -115,6 +115,7 @@ class RsListApplicationTests {
         String jsonString = objectMapper.writeValueAsString(rsEvent);
         mockMvc.perform(patch("/rs/update/1").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+
         mockMvc.perform(get("/rs/1"))
                 .andExpect(jsonPath("$.eventName", is("更新eventName")))
                 .andExpect(jsonPath("$.keyWords", is("更新keyWords")))
@@ -140,6 +141,7 @@ class RsListApplicationTests {
     }
 
     @Test
+    @Order(6)
     public void deleteRsEventByIndex() throws Exception {
         mockMvc.perform(delete("/rs/delete/1"))
                 .andExpect(status().isOk());
