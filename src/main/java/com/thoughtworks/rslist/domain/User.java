@@ -1,4 +1,4 @@
-package com.thoughtworks.rslist.api.domain;
+package com.thoughtworks.rslist.domain;
 
 import javax.validation.constraints.*;
 
