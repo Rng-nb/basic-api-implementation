@@ -50,14 +50,17 @@ public class RsControllerTests {
         mockMvc.perform(get("/rs/1"))
                 .andExpect(jsonPath("$.eventName", is("第一条事件")))
                 .andExpect(jsonPath("$.keyWords", is("无标签")))
+                .andExpect(jsonPath("$", not(hasKey("user"))))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/2"))
                 .andExpect(jsonPath("$.eventName", is("第二条事件")))
                 .andExpect(jsonPath("$.keyWords", is("无标签")))
+                .andExpect(jsonPath("$", not(hasKey("user"))))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/3"))
                 .andExpect(jsonPath("$.eventName", is("第三条事件")))
                 .andExpect(jsonPath("$.keyWords", is("无标签")))
+                .andExpect(jsonPath("$", not(hasKey("user"))))
                 .andExpect(status().isOk());
     }
 
