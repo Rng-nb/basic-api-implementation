@@ -2,25 +2,19 @@ package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.RsEvent;
 import com.thoughtworks.rslist.domain.User;
-import com.thoughtworks.rslist.exception.Error;
-import com.thoughtworks.rslist.exception.RsEventInvalidIndexException;
-import org.slf4j.LoggerFactory;
+import com.thoughtworks.rslist.exception.RsEventInvalidException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 @RestController
 public class RsController {
   private List<RsEvent> rsEventList = initRsEvent();
-
   private List<RsEvent> initRsEvent() {
 
     List<RsEvent> rsEvent = new LinkedList<RsEvent>();
@@ -44,14 +38,17 @@ public class RsController {
   @GetMapping("/rs/{index}")
   public ResponseEntity getRsEventByIndex(@PathVariable int index) {
     if(index <= 0 || index > rsEventList.size()) {
-      throw new RsEventInvalidIndexException("invalid index");
+      throw new RsEventInvalidException("invalid index");
     }
     return ResponseEntity.ok(rsEventList.get(index -1));
   }
 
   @GetMapping("/rs/list")
   public ResponseEntity getRsEventListStartEnd(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end) {
-    if(start != null && end != null) {
+    if(start == null || start < 0 || end == null || end > rsEventList.size()) {
+      throw new RsEventInvalidException("invalid request param");
+
+    } else if(start != null && end != null) {
       return ResponseEntity.ok(rsEventList.subList(start - 1, end));
     }
     return ResponseEntity.ok(rsEventList);

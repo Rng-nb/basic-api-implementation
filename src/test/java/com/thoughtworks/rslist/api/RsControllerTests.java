@@ -294,4 +294,12 @@ public class RsControllerTests {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is("invalid param")));
     }
+
+    @Test
+    @Order(14)
+    public void returnErrorWithInvalidStartOrEnd() throws Exception {
+        mockMvc.perform(get("/rs/list?start=-1&end=100"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid request param")));
+    }
 }
