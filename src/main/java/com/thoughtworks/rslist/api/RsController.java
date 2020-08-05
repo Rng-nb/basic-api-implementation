@@ -1,11 +1,87 @@
 package com.thoughtworks.rslist.api;
 
-import org.springframework.web.bind.annotation.RestController;
+import com.thoughtworks.rslist.domain.RsEvent;
+import com.thoughtworks.rslist.domain.User;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 public class RsController {
-  private List<String> rsList = Arrays.asList("第一条事件", "第二条事件", "第三条事件");
+  private List<RsEvent> rsEventList = initRsEvent();
+
+  private List<RsEvent> initRsEvent() {
+
+    List<RsEvent> rsEvent = new LinkedList<RsEvent>();
+    User userInit = new User("xiaowang", 19,"male", "xw@thoughtworks.com", "11111111111");
+
+    UserController.insertUser(userInit);
+    rsEvent.add(new RsEvent("第一条事件", "无标签", userInit));
+
+    userInit = new User("xiaoming",18,"female", "xm@thoughtworks.com", "12222222222");
+
+    UserController.insertUser(userInit);
+    rsEvent.add(new RsEvent("第二条事件", "无标签", userInit));
+
+    userInit = new User("xiaoli",  40,"male", "xl@thoughtworks.com", "13333333333");
+    UserController.insertUser(userInit);
+    rsEvent.add(new RsEvent("第三条事件", "无标签", userInit));
+
+    return rsEvent;
+  }
+
+  @GetMapping("/rs/{index}")
+  public ResponseEntity getRsEventByIndex(@PathVariable int index) {
+    return ResponseEntity.ok(rsEventList.get(index -1));
+  }
+
+  @GetMapping("/rs/list")
+  public ResponseEntity getRsEventListStartEnd(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end) {
+    if(start != null && end != null) {
+      return ResponseEntity.ok(rsEventList.subList(start - 1, end));
+    }
+    return ResponseEntity.ok(rsEventList);
+  }
+
+  @PostMapping("/rs/event")
+  public ResponseEntity insertRsEvent(@RequestBody @Valid RsEvent rsEvent) {
+    rsEventList.add(rsEvent);
+    User insertUser = rsEvent.getUser();
+    boolean isContains = false;
+    for (int i = 0; i < UserController.getUserList().size(); ++i) {
+      if(UserController.getUserList().get(i).getName().equals(insertUser.getName())) {
+        isContains = true;
+      }
+    }
+    if(!isContains)
+      UserController.insertUser(insertUser);
+    HttpHeaders httpHeaders = new HttpHeaders();
+    int index = rsEventList.indexOf(rsEvent) + 1;
+    httpHeaders.add("Index", String.valueOf(index));
+    return ResponseEntity.created(null).headers(httpHeaders).build();
+  }
+
+  @PatchMapping("/rs/update/{index}")
+  public void updateRsEventByIndex(@PathVariable int index, @RequestBody RsEvent rsEvent) {
+    if(rsEvent.getEventName() != null && rsEvent.getKeyWords() != null) {
+      rsEventList.set(index - 1, rsEvent);
+    } else if(rsEvent.getEventName() == null) {
+      rsEventList.get(index -1).setKeyWords(rsEvent.getKeyWords());
+    } else {
+      rsEventList.get(index - 1).setEventName(rsEvent.getEventName());
+    }
+  }
+
+  @DeleteMapping("/rs/delete/{index}")
+  public void deleteRsEventByIndex(@PathVariable int index) {
+    rsEventList.remove(index - 1);
+  }
 }
