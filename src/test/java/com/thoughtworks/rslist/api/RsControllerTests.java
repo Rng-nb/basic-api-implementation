@@ -302,4 +302,26 @@ public class RsControllerTests {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is("invalid request param")));
     }
+
+    @Test
+    @Order(15)
+    public void returnErrorWithInvalidUser() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
+        User userInsert = new User("xiaoA", 123, "male", "xA@thoughtworks.com", "11234567890");
+        RsEvent rsEvent = new RsEvent("xiaoARs", "User", userInsert);
+        String jsonString = objectMapper.writeValueAsString(rsEvent);
+
+        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid param")));
+
+        userInsert = new User("xiaoA", 23, "male", "xA@thoughtworks.com", "11234567890");
+        rsEvent = new RsEvent(null, "User", userInsert);
+        jsonString = objectMapper.writeValueAsString(rsEvent);
+        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid param")));
+
+    }
 }
