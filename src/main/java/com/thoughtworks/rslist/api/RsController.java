@@ -2,35 +2,37 @@ package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.RsEvent;
 import com.thoughtworks.rslist.domain.User;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 public class RsController {
-
-  private List<User> userList = new LinkedList<User>();
   private List<RsEvent> rsEventList = initRsEvent();
 
   private List<RsEvent> initRsEvent() {
 
     List<RsEvent> rsEvent = new LinkedList<RsEvent>();
-    User userInit = new User("xiaowang", 19,"male", "xw@thoughtwork.com", "11111111111");
+    User userInit = new User("xiaowang", 19,"male", "xw@thoughtworks.com", "11111111111");
 
-    userList.add(userInit);
+    UserController.insertUser(userInit);
     rsEvent.add(new RsEvent("第一条事件", "无标签", userInit));
 
     userInit = new User("xiaoming",18,"female", "xm@thoughtworks.com", "12222222222");
 
-    userList.add(userInit);
+    UserController.insertUser(userInit);
     rsEvent.add(new RsEvent("第二条事件", "无标签", userInit));
 
     userInit = new User("xiaoli",  40,"male", "xl@thoughtworks.com", "13333333333");
-    userList.add(userInit);
+    UserController.insertUser(userInit);
     rsEvent.add(new RsEvent("第三条事件", "无标签", userInit));
 
     return rsEvent;
@@ -49,24 +51,22 @@ public class RsController {
     return ResponseEntity.ok(rsEventList);
   }
 
-  @GetMapping("/rs/user")
-  public List<User> getUserList() {
-    return userList;
-  }
-
   @PostMapping("/rs/event")
   public ResponseEntity insertRsEvent(@RequestBody @Valid RsEvent rsEvent) {
     rsEventList.add(rsEvent);
     User insertUser = rsEvent.getUser();
     boolean isContains = false;
-    for (int i = 0; i < userList.size(); ++i) {
-      if(userList.get(i).getName().equals(insertUser.getName())) {
+    for (int i = 0; i < UserController.getUserList().size(); ++i) {
+      if(UserController.getUserList().get(i).getName().equals(insertUser.getName())) {
         isContains = true;
       }
     }
     if(!isContains)
-      userList.add(insertUser);
-    return ResponseEntity.created(null).body(rsEventList.size());
+      UserController.insertUser(insertUser);
+    HttpHeaders httpHeaders = new HttpHeaders();
+    int index = rsEventList.indexOf(rsEvent) + 1;
+    httpHeaders.add("Index", String.valueOf(index));
+    return ResponseEntity.created(null).headers(httpHeaders).build();
   }
 
   @PatchMapping("/rs/update/{index}")

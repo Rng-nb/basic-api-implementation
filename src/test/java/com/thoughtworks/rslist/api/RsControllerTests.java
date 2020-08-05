@@ -16,8 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
@@ -98,10 +97,9 @@ public class RsControllerTests {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
 
-        User userInsert = new User("xiaoning",  27,"female", "xn@thoughtworks.com", "15555555555");
+        User userInsert = new User("xiaoning", 27, "female", "xn@thoughtworks.com", "15555555555");
         RsEvent rsEvent = new RsEvent("猪肉涨价了", "经济", userInsert);
         String jsonString = objectMapper.writeValueAsString(rsEvent);
-
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
         mockMvc.perform(get("/rs/list"))
@@ -201,12 +199,12 @@ public class RsControllerTests {
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/rs/user"))
+        mockMvc.perform(get("/users"))
                 .andExpect(jsonPath("$", hasSize(4)))
-                .andExpect(jsonPath("$[0].name", is("xiaowang")))
-                .andExpect(jsonPath("$[1].name", is("xiaoming")))
-                .andExpect(jsonPath("$[2].name", is("xiaoli")))
-                .andExpect(jsonPath("$[3].name", is("xiaoning")))
+                .andExpect(jsonPath("$[0].user_name", is("xiaowang")))
+                .andExpect(jsonPath("$[1].user_name", is("xiaoming")))
+                .andExpect(jsonPath("$[2].user_name", is("xiaoli")))
+                .andExpect(jsonPath("$[3].user_name", is("xiaoning")))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/list"))
                 .andExpect(jsonPath("$", hasSize(4)))
@@ -226,13 +224,12 @@ public class RsControllerTests {
 
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        mockMvc.perform(get("/rs/user"))
+        mockMvc.perform(get("/users"))
                 .andExpect(jsonPath("$", hasSize(5)))
-                .andExpect(jsonPath("$[0].name", is("xiaowang")))
-                .andExpect(jsonPath("$[1].name", is("xiaoming")))
-                .andExpect(jsonPath("$[2].name", is("xiaoli")))
-                .andExpect(jsonPath("$[3].name", is("xiaoning")))
-                .andExpect(jsonPath("$[4].name", is("xiaoan")))
+                .andExpect(jsonPath("$[0].user_name", is("xiaowang")))
+                .andExpect(jsonPath("$[1].user_name", is("xiaoming")))
+                .andExpect(jsonPath("$[2].user_name", is("xiaoli")))
+                .andExpect(jsonPath("$[3].user_name", is("xiaoning")))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/list"))
                 .andExpect(jsonPath("$", hasSize(5)))
@@ -254,6 +251,25 @@ public class RsControllerTests {
 
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$",is(6)));
+                .andExpect(header().stringValues("index", "6"));
+    }
+
+    @Test
+    @Order(11)
+    public void shouldReturnUserInfo() throws Exception {
+        mockMvc.perform(get("/users"))
+                .andExpect(jsonPath("$[0].user_name", is("xiaowang")))
+                .andExpect(jsonPath("$[0].user_age", is(19)))
+                .andExpect(jsonPath("$[0].user_gender", is("male")))
+                .andExpect(jsonPath("$[0].user_email", is("xw@thoughtworks.com")))
+                .andExpect(jsonPath("$[0].user_phone", is("11111111111")))
+                .andExpect(jsonPath("$[0]", not(hasKey("voteNum"))))
+                .andExpect(jsonPath("$[5].user_name", is("xiaoA")))
+                .andExpect(jsonPath("$[5].user_age", is(23)))
+                .andExpect(jsonPath("$[5].user_gender", is("male")))
+                .andExpect(jsonPath("$[5].user_email", is("xA@thoughtworks.com")))
+                .andExpect(jsonPath("$[5].user_phone", is("11234567890")))
+                .andExpect(jsonPath("$[5]", not(hasKey("voteNum"))))
+                .andExpect(status().isOk());
     }
 }
