@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist.api;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.domain.RsEvent;
 import com.thoughtworks.rslist.domain.User;
@@ -13,8 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,13 +34,13 @@ public class RsControllerTests {
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
                 .andExpect(jsonPath("$[0].keyWords", is("无标签")))
-                .andExpect(jsonPath("$[0].user.name", is("xiaowang")))
+                .andExpect(jsonPath("$[0]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
                 .andExpect(jsonPath("$[1].keyWords", is("无标签")))
-                .andExpect(jsonPath("$[1].user.gender", is("female")))
+                .andExpect(jsonPath("$[1]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyWords", is("无标签")))
-                .andExpect(jsonPath("$[2].user.age", is(40)))
+                .andExpect(jsonPath("$[2]", not(hasKey("user"))))
                 .andExpect(status().isOk());
     }
 
@@ -93,11 +93,14 @@ public class RsControllerTests {
     @Order(4)
     public void insertRsEvent() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
+
         User userInsert = new User("xiaoning",  27,"female", "xn@thoughtworks.com", "15555555555");
         RsEvent rsEvent = new RsEvent("猪肉涨价了", "经济", userInsert);
         String jsonString = objectMapper.writeValueAsString(rsEvent);
+
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
         mockMvc.perform(get("/rs/list"))
                 .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
@@ -108,11 +111,6 @@ public class RsControllerTests {
                 .andExpect(jsonPath("$[2].keyWords", is("无标签")))
                 .andExpect(jsonPath("$[3].eventName", is("猪肉涨价了")))
                 .andExpect(jsonPath("$[3].keyWords", is("经济")))
-                .andExpect(jsonPath("$[3].user.name", is("xiaoning")))
-                .andExpect(jsonPath("$[3].user.gender", is("female")))
-                .andExpect(jsonPath("$[3].user.age", is(27)))
-                .andExpect(jsonPath("$[3].user.email", is("xn@thoughtworks.com")))
-                .andExpect(jsonPath("$[3].user.phone", is("15555555555")))
                 .andExpect(status().isOk());
     }
 
@@ -120,6 +118,7 @@ public class RsControllerTests {
     @Order(5)
     public void updateRsEventByIndex() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
         RsEvent rsEvent = new RsEvent("更新eventName", "更新keyWords", null);
         String jsonString = objectMapper.writeValueAsString(rsEvent);
         mockMvc.perform(patch("/rs/update/1").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -168,6 +167,7 @@ public class RsControllerTests {
     @Order(7)
     public void insertRsEventShouldHasEventNameAndKeyWordsAndUser() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
         User userInsert = new User("xiaoning", 27,"female",  "xn@thoughtworks.com", "15555555555");
 
         RsEvent rsEvent = new RsEvent(null, "经济", userInsert);
@@ -190,12 +190,13 @@ public class RsControllerTests {
     @Order(8)
     public void insertRsEventShouldNotInsertUserNameIfContains() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
         User userInsert = new User("xiaoning", 27,"female",  "xn@thoughtworks.com", "15555555555");
         RsEvent rsEvent = new RsEvent("5G", "Internet", userInsert);
         String jsonString = objectMapper.writeValueAsString(rsEvent);
 
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         mockMvc.perform(get("/rs/user"))
                 .andExpect(jsonPath("$", hasSize(4)))
@@ -215,12 +216,13 @@ public class RsControllerTests {
     @Order(9)
     public void insertRsEventShouldInsertUserNameIfNotContains() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
         User userInsert = new User("xiaoan", 27, "female", "xa@thoughtworks.com", "16666666666");
         RsEvent rsEvent = new RsEvent("5G+", "Internet", userInsert);
         String jsonString = objectMapper.writeValueAsString(rsEvent);
 
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
         mockMvc.perform(get("/rs/user"))
                 .andExpect(jsonPath("$", hasSize(5)))
                 .andExpect(jsonPath("$[0].name", is("xiaowang")))

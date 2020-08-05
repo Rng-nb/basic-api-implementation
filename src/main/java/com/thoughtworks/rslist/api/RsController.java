@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.RsEvent;
 import com.thoughtworks.rslist.domain.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -35,16 +36,16 @@ public class RsController {
   }
 
   @GetMapping("/rs/{index}")
-  public RsEvent getRsEventByIndex(@PathVariable int index) {
-    return rsEventList.get(index -1);
+  public ResponseEntity getRsEventByIndex(@PathVariable int index) {
+    return ResponseEntity.ok(rsEventList.get(index -1));
   }
 
   @GetMapping("/rs/list")
-  public List<RsEvent> getRsEventListStartEnd(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end) {
+  public ResponseEntity getRsEventListStartEnd(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end) {
     if(start != null && end != null) {
-      return rsEventList.subList(start - 1, end);
+      return ResponseEntity.ok(rsEventList.subList(start - 1, end));
     }
-    return rsEventList;
+    return ResponseEntity.ok(rsEventList);
   }
 
   @GetMapping("/rs/user")
@@ -53,7 +54,7 @@ public class RsController {
   }
 
   @PostMapping("/rs/event")
-  public void insertRsEvent(@RequestBody @Valid RsEvent rsEvent) {
+  public ResponseEntity insertRsEvent(@RequestBody @Valid RsEvent rsEvent) {
     rsEventList.add(rsEvent);
     User insertUser = rsEvent.getUser();
     boolean isContains = false;
@@ -64,6 +65,7 @@ public class RsController {
     }
     if(!isContains)
       userList.add(insertUser);
+    return ResponseEntity.created(null).build();
   }
 
   @PatchMapping("/rs/update/{index}")
