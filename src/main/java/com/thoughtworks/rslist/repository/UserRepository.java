@@ -14,4 +14,6 @@ public interface UserRepository extends CrudRepository<UserDto, Integer> {
     List<UserDto> findAll();
     @Transactional
     UserDto getAllById(int userId);
+    @Transactional
+    void deleteAllById(int userId);
 }

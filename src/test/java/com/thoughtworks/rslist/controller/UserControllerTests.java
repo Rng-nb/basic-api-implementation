@@ -17,8 +17,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -133,21 +132,26 @@ public class UserControllerTests {
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        List<UserDto> userDtos = userRepository.findAll();
+        List<UserDto> userDtoList = userRepository.findAll();
         mockMvc.perform(get("/user/1"))
-                .andExpect(jsonPath("$.user_name", is(userDtos.get(0).getUserName())))
+                .andExpect(jsonPath("$.user_name", is(userDtoList.get(0).getUserName())))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/user/2"))
-                .andExpect(jsonPath("$.user_name",is(userDtos.get(1).getUserName())))
+                .andExpect(jsonPath("$.user_name",is(userDtoList.get(1).getUserName())))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/user/3"))
-                .andExpect(jsonPath("$.user_name",is(userDtos.get(2).getUserName())))
+                .andExpect(jsonPath("$.user_name",is(userDtoList.get(2).getUserName())))
                 .andExpect(status().isOk());
     }
-//
-//    @Test
-//    @Order(9)
-//    public void should_delete_user_when_delete_give_id() {
-//        mockM
-//    }
+
+    @Test
+    @Order(9)
+    public void should_delete_user_when_delete_give_id() throws Exception {
+        mockMvc.perform(delete("/user/delete/1"))
+                .andExpect(status().isOk());
+        List<UserDto> userDtoList = userRepository.findAll();
+        assertEquals(4, userDtoList.size());
+        assertEquals("dtotest", userDtoList.get(0).getUserName());
+
+    }
 }

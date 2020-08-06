@@ -41,4 +41,8 @@ public class UserService {
                 userDto.getEmail(), userDto.getPhone());
         return userReturn;
     }
+
+    public void deleteUserById(int id) {
+        userRepository.deleteAllById(id);
+    }
 }
