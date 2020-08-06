@@ -7,7 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import javax.validation.Valid;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,8 +14,9 @@ import java.util.List;
 @RestController
 public class RsController {
   private List<RsEvent> rsEventList = initRsEvent();
-  private List<RsEvent> initRsEvent() {
 
+
+  private List<RsEvent> initRsEvent(){
     List<RsEvent> rsEvent = new LinkedList<RsEvent>();
     User userInit = new User("xiaowang", 19,"male", "xw@thoughtworks.com", "11111111111");
 

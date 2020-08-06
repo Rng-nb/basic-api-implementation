@@ -1,6 +1,9 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.User;
+import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +19,9 @@ import java.util.List;
 public class UserController {
     private static List<User> userList = new LinkedList<User>();
 
+    @Autowired
+    UserRepository userRepository;
+
     public static void insertUser(User user) {
         userList.add(user);
     }
@@ -25,7 +31,14 @@ public class UserController {
     }
     @PostMapping("/user")
     public void postUserList(@RequestBody @Valid User user) {
-        userList.add(user);
+        UserDto userDto = new UserDto();
+        userDto.setUserName(user.getName());
+        userDto.setAge(user.getAge());
+        userDto.setGender(user.getGender());
+        userDto.setEmail(user.getEmail());
+        userDto.setPhone(user.getPhone());
+        userDto.setVoteNum(user.getVoteNum());
+        userRepository.save(userDto);
     }
 
     @GetMapping("/users")
