@@ -1,82 +1,75 @@
 package com.thoughtworks.rslist.service;
 
-import com.thoughtworks.rslist.controller.UserController;
 import com.thoughtworks.rslist.domain.RsEvent;
-import com.thoughtworks.rslist.domain.User;
-import com.thoughtworks.rslist.exception.RsEventInvalidException;
+import com.thoughtworks.rslist.dto.RsEventDto;
+import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.repository.RsEventRepository;
+import com.thoughtworks.rslist.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RsService {
 
     @Autowired
+    RsEventRepository rsEventRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
     UserService userService;
 
-    private List<RsEvent> rsEventList;
-
-    private List<RsEvent> initRsEventList() {
-        List<RsEvent> rsEventListInit = new LinkedList<RsEvent>();
-        rsEventListInit.add(new RsEvent("第一条事件", "无标签",
-                new User("xiaowang", 19,"male", "xw@thoughtworks.com", "11111111111")));
-        rsEventListInit.add(new RsEvent("第二条事件", "无标签",
-                new User("xiaoming",18,"female", "xm@thoughtworks.com", "12222222222")));
-        rsEventListInit.add(new RsEvent("第三条事件", "无标签",
-                new User("xiaoli",  40,"male", "xl@thoughtworks.com", "13333333333")));
-
-        userService.insertUser(new User("xiaowang", 19,"male", "xw@thoughtworks.com", "11111111111"));
-        userService.insertUser(new User("xiaoming",18,"female", "xm@thoughtworks.com", "12222222222"));
-        userService.insertUser(new User("xiaoli",  40,"male", "xl@thoughtworks.com", "13333333333"));
-        return rsEventListInit;
-    }
 
     public RsEvent getRsEventByIndex(int index) {
-        return rsEventList.get(index - 1);
+        RsEventDto eventDto = rsEventRepository.findById(index);
+        RsEvent rsEvent = new RsEvent(eventDto.getEventName(), eventDto.getKeyWords(), eventDto.getUserDto().getId());
+        return rsEvent;
     }
 
     public List<RsEvent> getWholeRsEventList() {
+        List<RsEvent> rsEventList = rsEventRepository.findAll().stream()
+                                    .map(item -> new RsEvent(item.getEventName(), item.getKeyWords(), item.getUserDto().getId()))
+                                    .collect(Collectors.toList());
         return rsEventList;
     }
     public List<RsEvent> getRsEventBetweenStartAndEnd(int start, int end) {
-        return rsEventList.subList(start - 1, end);
+        List<RsEvent> rsEventList = rsEventRepository.findAllByStartAndEnd(start, end).stream()
+                                    .map(item -> new RsEvent(item.getEventName(), item.getKeyWords(), item.getUserDto().getId()))
+                                    .collect(Collectors.toList());
+        return rsEventList;
     }
 
     public int getRsEventListSize() {
-        return rsEventList.size();
+        return rsEventRepository.findAll().size();
     }
 
     public int insertRsEventToList(RsEvent rsEvent) {
-        rsEventList.add(rsEvent);
-        User userInsert = rsEvent.getUser();
-        boolean isContains = false;
-        for (int i = 0; i < userService.getUserList().size(); ++i) {
-            if(userService.getUserList().get(i).getName().equals(userInsert.getName())) {
-                isContains = true;
-            }
-        }
-        if(!isContains)
-            userService.getUserList().add(userInsert);
-
-        return rsEventList.indexOf(rsEvent) + 1;
+        UserDto userDto = userRepository.getAllById(rsEvent.getUserId());
+        RsEventDto rsEventDto = rsEventRepository.save(RsEventDto.builder().eventName(rsEvent.getEventName()).keyWords(rsEvent.getKeyWords())
+                .userDto(userDto).build());
+        return rsEventDto.getId();
     }
 
     public void updateRsEventListByIndex(int index, RsEvent rsEvent) {
+        RsEventDto rsEventDto = rsEventRepository.findById(index);
         if(rsEvent.getEventName() != null && rsEvent.getKeyWords() != null) {
-            rsEventList.set(index - 1, rsEvent);
+            rsEventDto.setEventName(rsEvent.getEventName());
+            rsEventDto.setKeyWords(rsEvent.getKeyWords());
         } else if(rsEvent.getEventName() == null) {
-            rsEventList.get(index -1).setKeyWords(rsEvent.getKeyWords());
+            rsEventDto.setKeyWords(rsEvent.getKeyWords());
         } else {
-            rsEventList.get(index - 1).setEventName(rsEvent.getEventName());
+            rsEventDto.setEventName(rsEvent.getEventName());
         }
+        rsEventRepository.save(rsEventDto);
     }
 
     public void deleteRsEventFromListByIndex(int index) {
-        rsEventList.remove(index - 1);
+        rsEventRepository.deleteAllById(index);
     }
 
+    public boolean isContainsUser(RsEvent rsEvent) {
+        return  userRepository.findById(rsEvent.getUserId()).isPresent();
+    }
 }

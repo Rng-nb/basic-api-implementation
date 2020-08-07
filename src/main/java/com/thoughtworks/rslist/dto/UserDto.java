@@ -6,10 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name = "user")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
     @Id
     @GeneratedValue
@@ -21,4 +25,7 @@ public class UserDto {
     private String email;
     private String phone;
     private int voteNum;
+
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "userDto")
+    private List<RsEventDto> rsEventDtoList;
 }

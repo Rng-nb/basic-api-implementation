@@ -3,6 +3,7 @@ package com.thoughtworks.rslist.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;

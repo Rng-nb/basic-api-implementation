@@ -17,7 +17,9 @@ import java.util.List;
 public class RsEventDto {
     @Id
     @GeneratedValue
+    private int id;
     private String eventName;
     private String keyWords;
-    private int userId;
+    @ManyToOne
+    private UserDto userDto;
 }

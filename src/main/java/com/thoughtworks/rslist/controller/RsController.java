@@ -44,10 +44,14 @@ public class RsController {
 
   @PostMapping("/rs/event")
   public ResponseEntity insertRsEvent(@RequestBody @Valid RsEvent rsEvent) {
-    int index = rsService.insertRsEventToList(rsEvent);
-    HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.add("Index", String.valueOf(index));
-    return ResponseEntity.created(null).headers(httpHeaders).build();
+    if(rsService.isContainsUser(rsEvent)) {
+      int index = rsService.insertRsEventToList(rsEvent);
+      HttpHeaders httpHeaders = new HttpHeaders();
+      httpHeaders.add("Index", String.valueOf(index));
+      return ResponseEntity.created(null).headers(httpHeaders).build();
+    } else {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @PatchMapping("/rs/update/{index}")

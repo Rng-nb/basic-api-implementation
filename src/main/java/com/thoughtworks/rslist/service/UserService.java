@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.service;
 
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,18 +14,15 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    RsEventRepository rsEventRepository;
 
 
     public int insertUser(User user) {
-        UserDto userDto = new UserDto();
-        userDto.setUserName(user.getName());
-        userDto.setAge(user.getAge());
-        userDto.setGender(user.getGender());
-        userDto.setEmail(user.getEmail());
-        userDto.setPhone(user.getPhone());
-        userDto.setVoteNum(user.getVoteNum());
-        userRepository.save(userDto);
-        return userDto.getId() + 1;
+        UserDto userDto = userRepository.save(UserDto.builder().userName(user.getName()).age(user.getAge())
+                .email(user.getEmail()).gender(user.getGender()).phone(user.getPhone())
+                .voteNum(user.getVoteNum()).build());
+        return userDto.getId();
     }
 
     public List<User> getUserList() {
