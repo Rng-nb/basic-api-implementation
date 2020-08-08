@@ -229,7 +229,6 @@ public class RsControllerTests {
     @Order(10)
     public void should_return_index_when_post_give_rsevent() throws Exception {
         String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + 1 +"}";
-
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().stringValues("index", "4"));
@@ -284,12 +283,68 @@ public class RsControllerTests {
     }
 
     @Test
-    public void shoud_delete_rsevent_when_delete_give_user() throws Exception {
+    public void should_delete_rsevent_when_delete_give_user() throws Exception {
         UserDto userDto = userRepository.save(UserDto.builder().userName("name_four").age(18).gender("male").email("a@b.com").phone(phone).voteNum(10).build());
         RsEventDto rsEventDto = rsEventRepository.save(RsEventDto.builder().keyWords("keyWords").eventName("eventName").userDto(userDto).build());
         mockMvc.perform(delete("/user/delete/{id}", userDto.getId()))
                 .andExpect(status().isOk());
         assertEquals(3, userRepository.findAll().size());
         assertEquals(3, rsEventRepository.findAll().size());
+    }
+
+    @Test
+    public void should_return_badrequest_when_update_give_rsevent_id_suit_user_id() throws Exception {
+        UserDto userDto = userRepository.save(UserDto.builder().userName("name_four").age(18).gender("male").email("a@b.com").phone(phone).voteNum(10).build());
+        RsEventDto rsEventDto = rsEventRepository.save(RsEventDto.builder().keyWords("keyWords").eventName("eventName").userDto(userDto).build());
+        String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + 100 +"}";
+        mockMvc.perform(patch("/rs/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    public void should_return_badrequest_when_update_give_rsevent_id_no_user_id() throws Exception {
+        UserDto userDto = userRepository.save(UserDto.builder().userName("name_four").age(18).gender("male").email("a@b.com").phone(phone).voteNum(10).build());
+        RsEventDto rsEventDto = rsEventRepository.save(RsEventDto.builder().keyWords("keyWords").eventName("eventName").userDto(userDto).build());
+        String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + null +"}";
+        mockMvc.perform(patch("/rs/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    public void should_update_eventname_and_keywords_when_update_give_rsevent_id_suit_user_id() throws Exception {
+        UserDto userDto = userRepository.save(UserDto.builder().userName("name_four").age(18).gender("male").email("a@b.com").phone(phone).voteNum(10).build());
+        RsEventDto rsEventDto = rsEventRepository.save(RsEventDto.builder().keyWords("keyWords").eventName("eventName").userDto(userDto).build());
+        String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + userDto.getId() +"}";
+        mockMvc.perform(patch("/rs/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        rsEventDto = rsEventRepository.findById(rsEventDto.getId());
+        assertEquals("猪肉涨价了", rsEventDto.getEventName());
+        assertEquals("经济", rsEventDto.getKeyWords());
+    }
+
+    @Test
+    public void should_only_update_eventname_when_update_give_rsevent_id_suit_user_id() throws Exception {
+        UserDto userDto = userRepository.save(UserDto.builder().userName("name_four").age(18).gender("male").email("a@b.com").phone(phone).voteNum(10).build());
+        RsEventDto rsEventDto = rsEventRepository.save(RsEventDto.builder().keyWords("keyWords").eventName("eventName").userDto(userDto).build());
+        String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":null,\"userId\":" + userDto.getId() +"}";
+        mockMvc.perform(patch("/rs/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        rsEventDto = rsEventRepository.findById(rsEventDto.getId());
+        assertEquals("猪肉涨价了", rsEventDto.getEventName());
+        assertEquals("keyWords", rsEventDto.getKeyWords());
+    }
+
+    @Test
+    public void should_only_update_keyWords_when_update_give_rsevent_id_suit_user_id() throws Exception {
+        UserDto userDto = userRepository.save(UserDto.builder().userName("name_four").age(18).gender("male").email("a@b.com").phone(phone).voteNum(10).build());
+        RsEventDto rsEventDto = rsEventRepository.save(RsEventDto.builder().keyWords("keyWords").eventName("eventName").userDto(userDto).build());
+        String jsonString = "{\"eventName\":null,\"keyWords\":\"经济\",\"userId\":" + userDto.getId() +"}";
+        mockMvc.perform(patch("/rs/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        rsEventDto = rsEventRepository.findById(rsEventDto.getId());
+        assertEquals("eventName", rsEventDto.getEventName());
+        assertEquals("经济", rsEventDto.getKeyWords());
     }
 }

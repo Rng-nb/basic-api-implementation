@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist.conponent;
 
+import com.thoughtworks.rslist.controller.RsController;
 import com.thoughtworks.rslist.domain.RsEvent;
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.exception.Error;

@@ -15,8 +15,12 @@ import java.util.List;
 
 @RestController
 public class RsController {
+  private RsService rsService;
+
   @Autowired
-  RsService rsService;
+  public RsController(RsService rsService) {
+    this.rsService = rsService;
+  }
 
   @GetMapping("/rs/{index}")
   public ResponseEntity getRsEventByIndex(@PathVariable int index) {
@@ -62,5 +66,10 @@ public class RsController {
   @DeleteMapping("/rs/delete/{index}")
   public void deleteRsEventByIndex(@PathVariable int index) {
     rsService.deleteRsEventFromListByIndex(index);
+  }
+
+  @PatchMapping("/rs/{rsEventId}")
+  public ResponseEntity updateRsEventById(@PathVariable int rsEventId, @RequestBody @Valid RsEvent rsEvent) {
+    return  rsService.updateRsEventByRsEventId(rsEventId, rsEvent);
   }
 }
