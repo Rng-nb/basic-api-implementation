@@ -14,9 +14,6 @@ import java.util.List;
 public interface RsEventRepository extends CrudRepository<RsEventDto, Integer> {
     @Override
     List<RsEventDto>  findAll();
-
-    RsEventDto findById(int rsEventId);
-
     @Transactional
     void deleteAllById(int rsEventId);
 

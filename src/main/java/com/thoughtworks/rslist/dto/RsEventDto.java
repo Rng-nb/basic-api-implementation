@@ -20,6 +20,12 @@ public class RsEventDto {
     private int id;
     private String eventName;
     private String keyWords;
+    private int voteNum;
+
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private UserDto userDto;
+
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "rsEventDto")
+    private List<VoteDto> voteDtoList;
 }

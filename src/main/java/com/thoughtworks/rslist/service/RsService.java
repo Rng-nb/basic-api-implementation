@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.interfaces.RSAKey;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +28,7 @@ public class RsService {
     }
 
     public RsEvent getRsEventByIndex(int index) {
-        RsEventDto eventDto = rsEventRepository.findById(index);
+        RsEventDto eventDto = rsEventRepository.findById(index).get();
         RsEvent rsEvent = new RsEvent(eventDto.getEventName(), eventDto.getKeyWords(), eventDto.getUserDto().getId());
         return rsEvent;
     }
@@ -57,7 +58,7 @@ public class RsService {
     }
 
     public void updateRsEventListByIndex(int index, RsEvent rsEvent) {
-        RsEventDto rsEventDto = rsEventRepository.findById(index);
+        RsEventDto rsEventDto = rsEventRepository.findById(index).get();
         if(rsEvent.getEventName() != null && rsEvent.getKeyWords() != null) {
             rsEventDto.setEventName(rsEvent.getEventName());
             rsEventDto.setKeyWords(rsEvent.getKeyWords());
@@ -79,7 +80,7 @@ public class RsService {
 
 
     public ResponseEntity updateRsEventByRsEventId(int rsEventId, RsEvent rsEvent) {
-        RsEventDto rsEventDto = rsEventRepository.findById(rsEventId);
+        RsEventDto rsEventDto = rsEventRepository.findById(rsEventId).get();
         if(rsEvent.getUserId() != rsEventDto.getUserDto().getId()) {
             return ResponseEntity.badRequest().build();
         } else {

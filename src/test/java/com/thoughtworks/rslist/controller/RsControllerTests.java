@@ -319,7 +319,7 @@ public class RsControllerTests {
         String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + userDto.getId() +"}";
         mockMvc.perform(patch("/rs/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        rsEventDto = rsEventRepository.findById(rsEventDto.getId());
+        rsEventDto = rsEventRepository.findById(rsEventDto.getId()).get();
         assertEquals("猪肉涨价了", rsEventDto.getEventName());
         assertEquals("经济", rsEventDto.getKeyWords());
     }
@@ -331,7 +331,7 @@ public class RsControllerTests {
         String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":null,\"userId\":" + userDto.getId() +"}";
         mockMvc.perform(patch("/rs/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        rsEventDto = rsEventRepository.findById(rsEventDto.getId());
+        rsEventDto = rsEventRepository.findById(rsEventDto.getId()).get();
         assertEquals("猪肉涨价了", rsEventDto.getEventName());
         assertEquals("keyWords", rsEventDto.getKeyWords());
     }
@@ -343,7 +343,7 @@ public class RsControllerTests {
         String jsonString = "{\"eventName\":null,\"keyWords\":\"经济\",\"userId\":" + userDto.getId() +"}";
         mockMvc.perform(patch("/rs/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        rsEventDto = rsEventRepository.findById(rsEventDto.getId());
+        rsEventDto = rsEventRepository.findById(rsEventDto.getId()).get();
         assertEquals("eventName", rsEventDto.getEventName());
         assertEquals("经济", rsEventDto.getKeyWords());
     }

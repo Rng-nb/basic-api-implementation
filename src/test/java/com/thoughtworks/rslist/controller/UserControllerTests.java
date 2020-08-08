@@ -3,19 +3,16 @@ package com.thoughtworks.rslist.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.dto.UserDto;
-import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -41,7 +38,7 @@ public class UserControllerTests {
     @Test
     @Order(1)
     public void should_add_userList_when_post_give_userPath() throws Exception {
-        User user = new User("wyf",  20,"male", "a@b.com", "11234567890");
+        User user = User.builder().name("wyf").age(20).gender("male").email("a@b.com").phone("11234567890").build();
         objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -51,7 +48,7 @@ public class UserControllerTests {
     @Test
     @Order(2)
     public void name_should_less_8() throws Exception {
-        User user = new User("wyffffffff", 20,"male",  "a@b.com", "11234567890");
+        User user = User.builder().name("wyffffffff").age(20).gender("male").email("a@b.com").phone("11234567890").build();
         objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -62,7 +59,7 @@ public class UserControllerTests {
     @Test
     @Order(3)
     public void gender_should_not_null() throws Exception {
-        User user = new User("wyf",20, null,  "a@b.com", "11234567890");
+        User user = User.builder().name("wyf").age(20).gender("male").email(null).phone("11234567890").build();
         objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -73,7 +70,7 @@ public class UserControllerTests {
     @Test
     @Order(4)
     public void age_should_between_18_and_100() throws Exception {
-        User user = new User("wyf",  17,"male", "a@b.com", "11234567890");
+        User user = User.builder().name("wyf").age(17).gender("male").email("a@b.com").phone("11234567890").build();
         objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -84,7 +81,7 @@ public class UserControllerTests {
     @Test
     @Order(5)
     public void mail_should_suit_format() throws Exception {
-        User user = new User("wyf", 20, "male", "a.b.com", "11234567890");
+        User user = User.builder().name("wyf").age(20).gender("male").email("a.b.com").phone("11234567890").build();
         objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -95,7 +92,7 @@ public class UserControllerTests {
     @Test
     @Order(6)
     public void phone_should_suit_format() throws Exception {
-        User user = new User("wyf",  20,"male", "a@b.com", "112345678910");
+        User user = User.builder().name("wyf").age(20).gender("male").email("a@b.com").phone("112345678910").build();
         objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -107,7 +104,7 @@ public class UserControllerTests {
     @Test
     @Order(7)
     public void should_register_user() throws Exception {
-        User user = new User("dtotest", 20, "male", "a@b.com", "11234567890");
+        User user = User.builder().name("dtotest").age(20).gender("male").email("a@b.com").phone("11234567890").build();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
@@ -124,7 +121,7 @@ public class UserControllerTests {
     @Test
     @Order(8)
     public void should_return_user_when_post_give_id() throws Exception {
-        User user = new User("insert1", 20, "male", "a@b.com", "11234567890");
+        User user = User.builder().name("insert1").age(20).gender("male").email("a@b.com").phone("11234567890").build();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
