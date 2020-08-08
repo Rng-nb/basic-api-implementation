@@ -3,19 +3,18 @@ package com.thoughtworks.rslist.controller;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.domain.RsEvent;
-import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -26,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RsControllerTests {
     @Autowired
     MockMvc mockMvc;
@@ -38,84 +36,89 @@ public class RsControllerTests {
 
     private String email = "a@b.com";
     private String phone = "11234567890";
+    UserDto userDto;
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
         rsEventRepository.deleteAll();
-        UserDto userDto = userRepository.save(UserDto.builder().userName("name_one").age(18).gender("mail").email(email).phone(phone).voteNum(10).build());
-        rsEventRepository.save(RsEventDto.builder().eventName("First Event").keyWords("test").userDto(userDto).build());
+        userDto = userRepository.save(UserDto.builder().userName("name_one").age(18).gender("mail").email(email).phone(phone).voteNum(10).build());
+        rsEventRepository.save(RsEventDto.builder().eventName("First Event").keyWords("test").userDto(userDto).voteNum(1).build());
         userDto = userRepository.save(UserDto.builder().userName("name_two").age(18).gender("mail").email(email).phone(phone).voteNum(10).build());
-        rsEventRepository.save(RsEventDto.builder().eventName("Second Event").keyWords("test").userDto(userDto).build());
+        rsEventRepository.save(RsEventDto.builder().eventName("Second Event").keyWords("test").userDto(userDto).voteNum(2).build());
         userDto = userRepository.save(UserDto.builder().userName("name_third").age(18).gender("mail").email(email).phone(phone).voteNum(10).build());
-        rsEventRepository.save(RsEventDto.builder().eventName("Third Event").keyWords("test").userDto(userDto).build());
+        rsEventRepository.save(RsEventDto.builder().eventName("Third Event").keyWords("test").userDto(userDto).voteNum(3).build());
     }
+
     @Test
-    @Order(1)
     public void should_return_rsevent_list_when_get_give_rs_list() throws Exception {
+        List<RsEventDto> rsEventDtoList = rsEventRepository.findAll();
         mockMvc.perform(get("/rs/list"))
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("First Event")))
-                .andExpect(jsonPath("$[0].keyWords", is("test")))
-                .andExpect(jsonPath("$[0]", not(hasKey("user"))))
-                .andExpect(jsonPath("$[1].eventName", is("Second Event")))
-                .andExpect(jsonPath("$[1].keyWords", is("test")))
-                .andExpect(jsonPath("$[1]", not(hasKey("user"))))
-                .andExpect(jsonPath("$[2].eventName", is("Third Event")))
-                .andExpect(jsonPath("$[2].keyWords", is("test")))
-                .andExpect(jsonPath("$[2]", not(hasKey("user"))))
+                .andExpect(jsonPath("$", hasSize(rsEventDtoList.size())))
+                .andExpect(jsonPath("$[0].eventName", is(rsEventDtoList.get(0).getEventName())))
+                .andExpect(jsonPath("$[0].keyWord", is(rsEventDtoList.get(0).getKeyWords())))
+                .andExpect(jsonPath("$[0].id", is(rsEventDtoList.get(0).getId())))
+                .andExpect(jsonPath("$[0].voteNum", is(rsEventDtoList.get(0).getVoteNum())))
+                .andExpect(jsonPath("$[1].eventName", is(rsEventDtoList.get(1).getEventName())))
+                .andExpect(jsonPath("$[1].keyWord", is(rsEventDtoList.get(1).getKeyWords())))
+                .andExpect(jsonPath("$[1].id", is(rsEventDtoList.get(1).getId())))
+                .andExpect(jsonPath("$[1].voteNum", is(rsEventDtoList.get(1).getVoteNum())))
+                .andExpect(jsonPath("$[2].eventName", is(rsEventDtoList.get(2).getEventName())))
+                .andExpect(jsonPath("$[2].keyWord", is(rsEventDtoList.get(2).getKeyWords())))
+                .andExpect(jsonPath("$[2].id", is(rsEventDtoList.get(2).getId())))
+                .andExpect(jsonPath("$[2].voteNum", is(rsEventDtoList.get(2).getVoteNum())))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Order(2)
     public void should_return_rsevent_when_get_give_index() throws Exception {
+        List<RsEventDto> rsEventDtoList = rsEventRepository.findAll();
+
         mockMvc.perform(get("/rs/1"))
-                .andExpect(jsonPath("$.eventName", is("First Event")))
-                .andExpect(jsonPath("$.keyWords", is("test")))
-                .andExpect(jsonPath("$", not(hasKey("user"))))
+                .andExpect(jsonPath("$.eventName", is(rsEventDtoList.get(0).getEventName())))
+                .andExpect(jsonPath("$.keyWord", is(rsEventDtoList.get(0).getKeyWords())))
+                .andExpect(jsonPath("$.id", is(rsEventDtoList.get(0).getId())))
+                .andExpect(jsonPath("$.voteNum", is(rsEventDtoList.get(0).getVoteNum())))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/2"))
-                .andExpect(jsonPath("$.eventName", is("Second Event")))
-                .andExpect(jsonPath("$.keyWords", is("test")))
-                .andExpect(jsonPath("$", not(hasKey("user"))))
+                .andExpect(jsonPath("$.eventName", is(rsEventDtoList.get(1).getEventName())))
+                .andExpect(jsonPath("$.keyWord", is(rsEventDtoList.get(1).getKeyWords())))
+                .andExpect(jsonPath("$.id", is(rsEventDtoList.get(1).getId())))
+                .andExpect(jsonPath("$.voteNum", is(rsEventDtoList.get(1).getVoteNum())))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/3"))
-                .andExpect(jsonPath("$.eventName", is("Third Event")))
-                .andExpect(jsonPath("$.keyWords", is("test")))
-                .andExpect(jsonPath("$", not(hasKey("user"))))
+                .andExpect(jsonPath("$.eventName", is(rsEventDtoList.get(2).getEventName())))
+                .andExpect(jsonPath("$.keyWord", is(rsEventDtoList.get(2).getKeyWords())))
+                .andExpect(jsonPath("$.id", is(rsEventDtoList.get(2).getId())))
+                .andExpect(jsonPath("$.voteNum", is(rsEventDtoList.get(2).getVoteNum())))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Order(3)
     public void should_return_rsevent_when_get_give_start_and_end() throws Exception {
+        List<RsEventDto> rsEventDtoList = rsEventRepository.findAll();
         mockMvc.perform(get("/rs/list?start=1&end=2"))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].eventName", is("First Event")))
-                .andExpect(jsonPath("$[0].keyWords", is("test")))
-                .andExpect(jsonPath("$[1].eventName", is("Second Event")))
-                .andExpect(jsonPath("$[1].keyWords", is("test")))
+                .andExpect(jsonPath("$[0].eventName", is(rsEventDtoList.get(0).getEventName())))
+                .andExpect(jsonPath("$[0].keyWord", is(rsEventDtoList.get(0).getKeyWords())))
+                .andExpect(jsonPath("$[1].id", is(rsEventDtoList.get(1).getId())))
+                .andExpect(jsonPath("$[1].voteNum", is(rsEventDtoList.get(1).getVoteNum())))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/list?start=2&end=3"))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].eventName", is("Second Event")))
-                .andExpect(jsonPath("$[0].keyWords", is("test")))
-                .andExpect(jsonPath("$[1].eventName", is("Third Event")))
-                .andExpect(jsonPath("$[1].keyWords", is("test")))
+                .andExpect(jsonPath("$[0].id", is(rsEventDtoList.get(1).getId())))
+                .andExpect(jsonPath("$[0].voteNum", is(rsEventDtoList.get(1).getVoteNum())))
+                .andExpect(jsonPath("$[1].eventName", is(rsEventDtoList.get(2).getEventName())))
+                .andExpect(jsonPath("$[1].keyWord", is(rsEventDtoList.get(2).getKeyWords())))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/list?start=1&end=3"))
                 .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("First Event")))
-                .andExpect(jsonPath("$[0].keyWords", is("test")))
-                .andExpect(jsonPath("$[1].eventName", is("Second Event")))
-                .andExpect(jsonPath("$[1].keyWords", is("test")))
-                .andExpect(jsonPath("$[2].eventName", is("Third Event")))
-                .andExpect(jsonPath("$[2].keyWords", is("test")))
+                .andExpect(jsonPath("$[0].eventName", is(rsEventDtoList.get(0).getEventName())))
+                .andExpect(jsonPath("$[1].voteNum", is(rsEventDtoList.get(1).getVoteNum())))
+                .andExpect(jsonPath("$[2].id", is(rsEventDtoList.get(2).getId())))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Order(4)
     public void should_insert_rsevent_when_post_give_rsevent() throws Exception {
         UserDto userDto = userRepository.save(UserDto.builder().userName("name_four").age(18).gender("male").email("a@b.com").phone(phone).voteNum(10).build());
         String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + userDto.getId() +"}";
@@ -135,7 +138,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(5)
     public void should_update_rsevent_when_patch_give_index() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
@@ -169,7 +171,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(6)
     public void should_delete_rsEvent_when_delete_give_index() throws Exception {
         mockMvc.perform(delete("/rs/delete/1"))
                 .andExpect(status().isOk());
@@ -184,7 +185,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(7)
     public void should_insert_rsevent_when_post_give_eventname_and_keywords_and_user() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
@@ -205,7 +205,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(8)
     public void should_return_badrequest_when_post_give_event_username_not_contains() throws Exception {
         String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + 100 +"}";
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -213,7 +212,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(9)
     public void should_insert_rsevent_when_post_give_event_username_contains() throws Exception {
         UserDto userDto = userRepository.save(UserDto.builder().userName("name_four").age(18).gender("male").email("a@b.com").phone(phone).voteNum(10).build());
         String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + userDto.getId() +"}";
@@ -226,7 +224,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(10)
     public void should_return_index_when_post_give_rsevent() throws Exception {
         String jsonString = "{\"eventName\":\"猪肉涨价了\",\"keyWords\":\"经济\",\"userId\":" + 1 +"}";
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -235,7 +232,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(11)
     public void should_return_userinfo_when_get_give_users() throws Exception {
         mockMvc.perform(get("/users"))
                 .andExpect(jsonPath("$[0].user_name", is("name_one")))
@@ -254,7 +250,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(12)
     public void should_return_error_when_get_with_invalid_index() throws Exception {
         mockMvc.perform(get("/rs/0"))
                 .andExpect(status().isBadRequest())
@@ -262,7 +257,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(13)
     public void should_return_error_when_get_with_invalid_index_userInfo() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
@@ -275,7 +269,6 @@ public class RsControllerTests {
     }
 
     @Test
-    @Order(14)
     public void should_return_error_when_get_give_invalid_start_or_end() throws Exception {
         mockMvc.perform(get("/rs/list?start=-1&end=100"))
                 .andExpect(status().isBadRequest())

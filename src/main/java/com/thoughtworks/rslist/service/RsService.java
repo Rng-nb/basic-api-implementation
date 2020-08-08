@@ -5,6 +5,7 @@ import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
+import com.thoughtworks.rslist.view.RsEventView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,37 +14,41 @@ import java.security.interfaces.RSAKey;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RsService {
     private RsEventRepository rsEventRepository;
     private UserRepository userRepository;
-    private UserService userService;
 
     @Autowired
     public RsService(RsEventRepository rsEventRepository, UserRepository userRepository, UserService userService) {
         this.rsEventRepository = rsEventRepository;
         this.userRepository = userRepository;
-        this.userService = userService;
     }
 
-    public RsEvent getRsEventByIndex(int index) {
-        RsEventDto eventDto = rsEventRepository.findById(index).get();
-        RsEvent rsEvent = new RsEvent(eventDto.getEventName(), eventDto.getKeyWords(), eventDto.getUserDto().getId());
-        return rsEvent;
+    public RsEventView getRsEventByIndex(int index) {
+        List<RsEventDto> rsEventDtoList = rsEventRepository.findAll();
+        RsEventDto eventDto = rsEventDtoList.get(index - 1);
+        RsEventView rsEventView = RsEventView.builder().eventName(eventDto.getEventName()).keyWord(eventDto.getKeyWords())
+                .id(eventDto.getId()).voteNum(eventDto.getVoteNum()).build();
+        return rsEventView;
     }
 
-    public List<RsEvent> getWholeRsEventList() {
-        List<RsEvent> rsEventList = rsEventRepository.findAll().stream()
-                                    .map(item -> new RsEvent(item.getEventName(), item.getKeyWords(), item.getUserDto().getId()))
-                                    .collect(Collectors.toList());
-        return rsEventList;
+    public List<RsEventView> getWholeRsEventList() {
+        List<RsEventView> rsEventViewList = rsEventRepository.findAll().stream()
+                                                .map(item -> RsEventView.builder().eventName(item.getEventName()).keyWord(item.getKeyWords())
+                                                .id(item.getId()).voteNum(item.getVoteNum()).build()).collect(Collectors.toList());
+        return rsEventViewList;
     }
-    public List<RsEvent> getRsEventBetweenStartAndEnd(int start, int end) {
-        List<RsEvent> rsEventList = rsEventRepository.findAllByStartAndEnd(start, end).stream()
-                                    .map(item -> new RsEvent(item.getEventName(), item.getKeyWords(), item.getUserDto().getId()))
-                                    .collect(Collectors.toList());
-        return rsEventList;
+    public List<RsEventView> getRsEventBetweenStartAndEnd(int start, int end) {
+        List<RsEventDto> rsEventDtoList = rsEventRepository.findAll();
+        start = rsEventDtoList.get(start - 1).getId();
+        end = rsEventDtoList.get(end - 1).getId();
+        List<RsEventView> rsEventViewList = rsEventRepository.findAllByStartAndEnd(start, end).stream()
+                                                .map(item -> RsEventView.builder().eventName(item.getEventName()).keyWord(item.getKeyWords())
+                                                .id(item.getId()).voteNum(item.getVoteNum()).build()).collect(Collectors.toList());
+        return rsEventViewList;
     }
 
     public int getRsEventListSize() {
