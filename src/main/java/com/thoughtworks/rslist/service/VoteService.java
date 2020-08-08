@@ -1,6 +1,5 @@
 package com.thoughtworks.rslist.service;
 
-import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.dto.UserDto;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,5 +64,13 @@ public class VoteService {
         rsEvent.setVoteNum(rsEvent.getVoteNum() + vote.getVoteNum());
         rsEventRepository.save(rsEvent);
         return ResponseEntity.ok().build();
+    }
+
+    public List<Vote> getVoteByTimeStartAndEnd(LocalDateTime timeStart, LocalDateTime timeEnd) {
+        List<VoteDto> voteDtoList = voteRepository.findByStartTimeAndEndTime(timeStart, timeEnd);
+        List<Vote> voteList = voteDtoList.stream().map( item -> Vote.builder().userId(item.getUserDto().getId())
+                .rsEventId(item.getRsEventDto().getId()).voteNum(item.getVotNum()).localDateTime(item.getLocalDateTime()).build())
+                .collect(Collectors.toList());
+        return voteList;
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -112,5 +113,25 @@ public class VoteControllerTests {
         String jsonString = objectMapper.writeValueAsString(vote);
         mockMvc.perform(post("/rs/vote/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void should_return_vote_when_get_give_start_and_end_time() throws Exception {
+        userDto = userRepository.save(UserDto.builder().userName("name_one").age(18).gender("mail").email("a@b.com").phone("11234567890").voteNum(10).build());
+        rsEventDto = rsEventRepository.save(RsEventDto.builder().keyWords("keyWords").eventName("eventName").userDto(userDto).voteNum(1).build());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        for(int i = 0; i < 8; ++i) {
+            LocalDateTime localDateTime = LocalDateTime.parse("2000-12-12 12:12:" + (12 + i), dateTimeFormatter);
+            voteRepository.save(VoteDto.builder().rsEventDto(rsEventDto).userDto(userDto).votNum(1).localDateTime(localDateTime).build());
+        }
+        mockMvc.perform(get("/vote/time")
+                        .param("timeStart", "2000-12-12 12:12:15")
+                        .param("timeEnd", "2000-12-12 12:12:18"))
+                        .andExpect(jsonPath("$", hasSize(4)))
+                        .andExpect(jsonPath("$[0].localDateTime", is(LocalDateTime.of(2000,12,12,12,12, 15).toString())))
+                        .andExpect(jsonPath("$[1].localDateTime", is(LocalDateTime.of(2000,12,12,12,12,16).toString())))
+                        .andExpect(jsonPath("$[2].localDateTime", is(LocalDateTime.of(2000,12,12,12,12,17).toString())))
+                        .andExpect(jsonPath("$[3].localDateTime", is(LocalDateTime.of(2000,12,12,12,12,18).toString())))
+                        .andExpect(status().isOk());
     }
 }
