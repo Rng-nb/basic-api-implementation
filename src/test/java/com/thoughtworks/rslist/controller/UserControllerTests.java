@@ -2,7 +2,9 @@ package com.thoughtworks.rslist.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.domain.User;
+import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class UserControllerTests {
     ObjectMapper objectMapper;
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    RsEventRepository rsEventRepository;
 
     @BeforeEach
     public void setUp() {
@@ -59,7 +64,7 @@ public class UserControllerTests {
     @Test
     @Order(3)
     public void gender_should_not_null() throws Exception {
-        User user = User.builder().name("wyf").age(20).gender("male").email(null).phone("11234567890").build();
+        User user = User.builder().name("wyf").age(20).gender(null).email("a@b.com").phone("11234567890").build();
         objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
@@ -145,11 +150,18 @@ public class UserControllerTests {
     @Test
     @Order(9)
     public void should_delete_user_when_delete_give_id() throws Exception {
-        mockMvc.perform(delete("/user/delete/1"))
+        UserDto userDto = UserDto.builder().voteNum(10).phone("11234567890").gender("male").email("a@b.com")
+                .age(20).userName("xx").build();
+        RsEventDto rsEventDto = RsEventDto.builder().userDto(userDto).eventName("test").voteNum(5).keyWords("123").build();
+        userDto = userRepository.save(userDto);
+        rsEventDto = rsEventRepository.save(rsEventDto);
+        List<UserDto> userDtoListBeforeDelete = userRepository.findAll();
+        List<RsEventDto> rsEventDtoListBeforeDelete = rsEventRepository.findAll();
+        mockMvc.perform(delete("/user/{userId}", userDto.getId()))
                 .andExpect(status().isOk());
-        List<UserDto> userDtoList = userRepository.findAll();
-        assertEquals(4, userDtoList.size());
-        assertEquals("dtotest", userDtoList.get(0).getUserName());
+
+        assertEquals(userDtoListBeforeDelete.size() - 1, userRepository.findAll().size());
+        assertEquals(rsEventDtoListBeforeDelete.size() - 1, rsEventRepository.findAll().size());
 
     }
 }

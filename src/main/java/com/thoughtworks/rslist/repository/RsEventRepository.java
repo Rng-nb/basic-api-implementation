@@ -22,6 +22,4 @@ public interface RsEventRepository extends CrudRepository<RsEventDto, Integer> {
 
     @Query("select rs from RsEventDto rs where rs.id >= :start and rs.id <= :end")
     List<RsEventDto> findAllByStartAndEnd(int start, int end);
-    
-
 }

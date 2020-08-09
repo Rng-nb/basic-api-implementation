@@ -27,7 +27,7 @@ public class VoteController {
             return ResponseEntity.ok(voteService.getVoteRecordByPageIndex(userId, rsEventId, pageIndex));
     }
 
-    @PostMapping("/rs/vote/{rsEventId}")
+    @PostMapping("/rsEvent/vote/{rsEventId}")
     public void voteRsEventById(@PathVariable int rsEventId, @RequestBody Vote vote) {
         voteService.voteRsEventById(rsEventId, vote);
     }

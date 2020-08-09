@@ -42,12 +42,6 @@ public class VoteControllerTests {
     UserDto userDto;
     RsEventDto rsEventDto;
 
-//    @AfterEach
-//    void tearDown() {
-//        voteRepository.deleteAll();
-//        rsEventRepository.deleteAll();
-//        userRepository.deleteAll();
-//    }
 
     @Test
     public void should_get_vote_record_when_get_give_user_and_rsevent_id() throws Exception {
@@ -88,10 +82,12 @@ public class VoteControllerTests {
     public void should_vote_when_post_give_votenum_enough() throws Exception {
         userDto = userRepository.save(UserDto.builder().userName("name_one").age(18).gender("mail").email("a@b.com").phone("11234567890").voteNum(8).build());
         rsEventDto = rsEventRepository.save(RsEventDto.builder().keyWords("keyWords").eventName("eventName").userDto(userDto).voteNum(1).build());
-        Vote vote = Vote.builder().voteNum(3).userId(userDto.getId()).localDateTime(LocalDateTime.now()).build();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse("2000-12-12 12:12:12", dateTimeFormatter);
+        Vote vote = Vote.builder().voteNum(3).userId(userDto.getId()).build();
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(vote);
-        mockMvc.perform(post("/rs/vote/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post("/rsEvent/vote/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk());
 
         List<VoteDto> voteDtoList = voteRepository.findAll();
@@ -111,7 +107,7 @@ public class VoteControllerTests {
         Vote vote = Vote.builder().voteNum(5).userId(userDto.getId()).localDateTime(LocalDateTime.now()).build();
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(vote);
-        mockMvc.perform(post("/rs/vote/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post("/rsEvent/vote/{rsEventId}", rsEventDto.getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 

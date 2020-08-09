@@ -32,15 +32,15 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserList());
     }
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity getUserById(@PathVariable int id) {
-        User userReturn = userService.getUserById(id);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity getUserById(@PathVariable int userId) {
+        User userReturn = userService.getUserById(userId);
         return ResponseEntity.ok(userReturn);
     }
 
-    @DeleteMapping("/user/delete/{id}")
-    public ResponseEntity deleteUserById(@PathVariable int id) {
-        userService.deleteUserById(id);
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity deleteUserById(@PathVariable int userId) {
+        userService.deleteUserById(userId);
         return ResponseEntity.ok().build();
     }
 }

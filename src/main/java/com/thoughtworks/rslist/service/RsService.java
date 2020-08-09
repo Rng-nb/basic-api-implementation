@@ -27,11 +27,10 @@ public class RsService {
         this.userRepository = userRepository;
     }
 
-    public RsEventView getRsEventByIndex(int index) {
-        List<RsEventDto> rsEventDtoList = rsEventRepository.findAll();
-        RsEventDto eventDto = rsEventDtoList.get(index - 1);
-        RsEventView rsEventView = RsEventView.builder().eventName(eventDto.getEventName()).keyWord(eventDto.getKeyWords())
-                .id(eventDto.getId()).voteNum(eventDto.getVoteNum()).build();
+    public RsEventView getRsEventByIndex(int rsEventId) {
+        RsEventDto rsEventDto = rsEventRepository.findById(rsEventId).get();
+        RsEventView rsEventView = RsEventView.builder().eventName(rsEventDto.getEventName()).keyWord(rsEventDto.getKeyWords())
+                .id(rsEventDto.getId()).voteNum(rsEventDto.getVoteNum()).build();
         return rsEventView;
     }
 
@@ -62,18 +61,6 @@ public class RsService {
         return rsEventDto.getId();
     }
 
-    public void updateRsEventListByIndex(int index, RsEvent rsEvent) {
-        RsEventDto rsEventDto = rsEventRepository.findById(index).get();
-        if(rsEvent.getEventName() != null && rsEvent.getKeyWords() != null) {
-            rsEventDto.setEventName(rsEvent.getEventName());
-            rsEventDto.setKeyWords(rsEvent.getKeyWords());
-        } else if(rsEvent.getEventName() == null) {
-            rsEventDto.setKeyWords(rsEvent.getKeyWords());
-        } else {
-            rsEventDto.setEventName(rsEvent.getEventName());
-        }
-        rsEventRepository.save(rsEventDto);
-    }
 
     public void deleteRsEventFromListByIndex(int index) {
         rsEventRepository.deleteAllById(index);
@@ -83,6 +70,9 @@ public class RsService {
         return  userRepository.findById(rsEvent.getUserId()).isPresent();
     }
 
+    public boolean isContainsRsEvent(int rsEventId) {
+        return rsEventRepository.findById(rsEventId).isPresent();
+    }
 
     public ResponseEntity updateRsEventByRsEventId(int rsEventId, RsEvent rsEvent) {
         RsEventDto rsEventDto = rsEventRepository.findById(rsEventId).get();

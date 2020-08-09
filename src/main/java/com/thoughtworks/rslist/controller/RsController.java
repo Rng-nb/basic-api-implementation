@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.controller;
 
 import com.thoughtworks.rslist.domain.RsEvent;
 import com.thoughtworks.rslist.domain.User;
+import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.exception.RsEventInvalidException;
 import com.thoughtworks.rslist.service.RsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +23,15 @@ public class RsController {
     this.rsService = rsService;
   }
 
-  @GetMapping("/rs/{index}")
-  public ResponseEntity getRsEventByIndex(@PathVariable int index) {
-    if(index <= 0 || index > rsService.getRsEventListSize()) {
+  @GetMapping("/rsEvent/{rsEventId}")
+  public ResponseEntity getRsEventByIndex(@PathVariable int rsEventId) {
+    if(rsEventId <= 0 || !rsService.isContainsRsEvent(rsEventId)) {
       throw new RsEventInvalidException("invalid index");
     }
-    return ResponseEntity.ok(rsService.getRsEventByIndex(index));
+    return ResponseEntity.ok(rsService.getRsEventByIndex(rsEventId));
   }
 
-  @GetMapping("/rs/list")
+  @GetMapping("/rsEvent/list")
   public ResponseEntity getRsEventListStartEnd(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end) {
     int maxSize = rsService.getRsEventListSize();
     if(start != null && end != null) {
@@ -46,7 +47,7 @@ public class RsController {
     return ResponseEntity.ok(rsService.getWholeRsEventList());
   }
 
-  @PostMapping("/rs/event")
+  @PostMapping("/rsEvent")
   public ResponseEntity insertRsEvent(@RequestBody @Valid RsEvent rsEvent) {
     if(rsService.isContainsUser(rsEvent)) {
       int index = rsService.insertRsEventToList(rsEvent);
@@ -58,17 +59,12 @@ public class RsController {
     }
   }
 
-  @PatchMapping("/rs/update/{index}")
-  public void updateRsEventByIndex(@PathVariable int index, @RequestBody RsEvent rsEvent) {
-    rsService.updateRsEventListByIndex(index, rsEvent);
+  @DeleteMapping("/rsEvent/{rsEventId}")
+  public void deleteRsEventByIndex(@PathVariable int rsEventId) {
+    rsService.deleteRsEventFromListByIndex(rsEventId);
   }
 
-  @DeleteMapping("/rs/delete/{index}")
-  public void deleteRsEventByIndex(@PathVariable int index) {
-    rsService.deleteRsEventFromListByIndex(index);
-  }
-
-  @PatchMapping("/rs/{rsEventId}")
+  @PatchMapping("/rsEvent/{rsEventId}")
   public ResponseEntity updateRsEventById(@PathVariable int rsEventId, @RequestBody @Valid RsEvent rsEvent) {
     return  rsService.updateRsEventByRsEventId(rsEventId, rsEvent);
   }
